@@ -1,0 +1,25 @@
+name: 🚀 Build Linux App
+on: [push, release]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+    
+    - run: npm ci
+    
+    - run: npm run build
+      if: "!steps.node.outputs.cache-hit"
+    
+    - name: 🐧 Build DEB for Zorin
+      uses: samuelmeuli/action-electron-builder@v1
+      with:
+        github_token: ${{ secrets.github_token }}
+        build_script: build
+        release: ${{ github.event_name === 'release' }}
